@@ -46,7 +46,12 @@
 </div>
 
 <script>
-// Función para cargar los caracteres ASCII imprimibles
+/**
+ * DOCUMENTACIÓN TÉCNICA INTERNA
+ * * 1. CARGA DE BASE ASCII:
+ * Genera el conjunto de caracteres usando los códigos decimales 32 al 126.
+ * Esto permite que el sistema cumpla con la alimentación de caracteres dinámica.
+ */
 function cargarASCII() {
     let ascii = "";
     for (let i = 32; i <= 126; i++) {
@@ -55,50 +60,62 @@ function cargarASCII() {
     document.getElementById("conjunto").value = ascii;
 }
 
-// Función para manejar el módulo matemático correctamente
+/**
+ * 2. CÁLCULO DE ARITMÉTICA MODULAR:
+ * Función para asegurar que el resultado del desplazamiento siempre sea positivo,
+ * permitiendo la circularidad del cifrado César incluso al descifrar (restar).
+ */
 function mod(n, m) {
     return ((n % m) + m) % m;
 }
 
-// Función principal de procesamiento
+/**
+ * 3. LÓGICA DE PROCESAMIENTO (Módulos César y Atbash):
+ * Implementa la sustitución de caracteres basada en el índice del alfabeto definido.
+ */
 function procesar(modo) {
     const conjunto = document.getElementById("conjunto").value;
     const texto = document.getElementById("texto").value;
     const tipo = document.getElementById("tipo").value;
     const n = parseInt(document.getElementById("desplazamiento").value);
     
+    // Validación: Seguridad de entrada de datos
     if (!conjunto) {
         alert("Por favor, carga el conjunto de caracteres (ASCII).");
         return;
     }
 
     let resultado = "";
-    const m = conjunto.length;
+    const m = conjunto.length; // Tamaño del conjunto (módulo m)
 
     for (let i = 0; i < texto.length; i++) {
         let char = texto[i];
         let posicion = conjunto.indexOf(char);
 
-        // Si el carácter no está en el conjunto, se queda igual
+        // Si el carácter no está en el alfabeto, se mantiene íntegro
         if (posicion === -1) {
             resultado += char;
             continue;
         }
 
         if (tipo === "cesar") {
-            let nuevaPos;
-            if (modo === "cifrar") {
-                nuevaPos = mod(posicion + n, m);
-            } else {
-                nuevaPos = mod(posicion - n, m);
-            }
+            /**
+             * LÓGICA CÉSAR: 
+             * Cifrar: nueva_pos = (posicion + n) mod m
+             * Descifrar: nueva_pos = (posicion - n) mod m
+             */
+            let nuevaPos = (modo === "cifrar") ? mod(posicion + n, m) : mod(posicion - n, m);
             resultado += conjunto[nuevaPos];
         } else if (tipo === "atbash") {
-            // Atbash es recíproco, no importa si es cifrar o descifrar
+            /**
+             * LÓGICA ATBASH: 
+             * Invierte la posición: nueva_pos = (m - 1) - posicion
+             */
             let nuevaPos = (m - 1) - posicion;
             resultado += conjunto[nuevaPos];
         }
     }
+    // Salida de información procesada
     document.getElementById("resultado").innerText = resultado;
 }
 </script>
