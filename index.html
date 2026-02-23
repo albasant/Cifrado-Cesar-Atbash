@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cifrador César y Atbash - ASCII Base</title>
+    <style>
+        body { font-family: sans-serif; background-color: #1e1e2f; color: white; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: #2c2c3f; padding: 20px; border-radius: 10px; }
+        input, textarea, select, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
+        button { cursor: pointer; font-weight: bold; }
+        .btn-ascii { background-color: #28a745; color: white; }
+        .btn-cifrar { background-color: #007bff; color: white; width: 48%; }
+        .btn-descifrar { background-color: #6c757d; color: white; width: 48%; }
+        .resultado { background: white; color: black; padding: 15px; border-radius: 5px; min-height: 40px; word-break: break-all; }
+        .flex { display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Cifrador César y Atbash</h2>
+
+    <label>1. Conjunto de caracteres (Alfabeto):</label>
+    <input type="text" id="conjunto" placeholder="Escribe el alfabeto o usa el botón de abajo">
+    <button class="btn-ascii" onclick="cargarASCII()">Cargar Base ASCII</button>
+
+    <label>2. Texto a procesar:</label>
+    <textarea id="texto" placeholder="Ingresa tu mensaje aquí"></textarea>
+
+    <label>3. Seleccionar Módulo:</label>
+    <select id="tipo">
+        <option value="cesar">César (Desplazamiento)</option>
+        <option value="atbash">Atbash (Inversión)</option>
+    </select>
+
+    <label>4. Desplazamiento (Solo para César):</label>
+    <input type="number" id="desplazamiento" value="3">
+
+    <div class="flex">
+        <button class="btn-cifrar" onclick="procesar('cifrar')">Cifrar</button>
+        <button class="btn-descifrar" onclick="procesar('descifrar')">Descifrar</button>
+    </div>
+
+    <h3>Resultado:</h3>
+    <div id="resultado" class="resultado"></div>
+</div>
+
+<script>
+// Función para cargar los caracteres ASCII imprimibles
+function cargarASCII() {
+    let ascii = "";
+    for (let i = 32; i <= 126; i++) {
+        ascii += String.fromCharCode(i);
+    }
+    document.getElementById("conjunto").value = ascii;
+}
+
+// Función para manejar el módulo matemático correctamente
+function mod(n, m) {
+    return ((n % m) + m) % m;
+}
+
+// Función principal de procesamiento
+function procesar(modo) {
+    const conjunto = document.getElementById("conjunto").value;
+    const texto = document.getElementById("texto").value;
+    const tipo = document.getElementById("tipo").value;
+    const n = parseInt(document.getElementById("desplazamiento").value);
+    
+    if (!conjunto) {
+        alert("Por favor, carga el conjunto de caracteres (ASCII).");
+        return;
+    }
+
+    let resultado = "";
+    const m = conjunto.length;
+
+    for (let i = 0; i < texto.length; i++) {
+        let char = texto[i];
+        let posicion = conjunto.indexOf(char);
+
+        // Si el carácter no está en el conjunto, se queda igual
+        if (posicion === -1) {
+            resultado += char;
+            continue;
+        }
+
+        if (tipo === "cesar") {
+            let nuevaPos;
+            if (modo === "cifrar") {
+                nuevaPos = mod(posicion + n, m);
+            } else {
+                nuevaPos = mod(posicion - n, m);
+            }
+            resultado += conjunto[nuevaPos];
+        } else if (tipo === "atbash") {
+            // Atbash es recíproco, no importa si es cifrar o descifrar
+            let nuevaPos = (m - 1) - posicion;
+            resultado += conjunto[nuevaPos];
+        }
+    }
+    document.getElementById("resultado").innerText = resultado;
+}
+</script>
+
+</body>
+</html>
